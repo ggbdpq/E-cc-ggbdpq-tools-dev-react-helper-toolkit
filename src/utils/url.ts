@@ -17,15 +17,14 @@ const URL_PATTERN = new RegExp(
     "i",
 );
 
+/** 查询参数名称到原始字符串值的映射；无等号的参数值为 `undefined` */
 export type QueryMap = Record<string, string | undefined>;
 
 function isReferenceUrl(value: string): boolean {
     return URL_PATTERN.test(value);
 }
 
-/**
- * 返回浏览器当前 Location；非浏览器环境返回 undefined。
- */
+/** 返回浏览器当前 `Location`；非浏览器环境返回 `undefined` */
 export function getLocation(): Location | undefined {
     if (typeof document === "undefined") return undefined;
     return window.location;
@@ -34,10 +33,8 @@ export function getLocation(): Location | undefined {
 /**
  * 按参考实现规则提取 URL 查询参数。
  *
- * 参数不会解码，重复键以后值覆盖前值，无等号的参数值为 undefined。
- *
- * @param url URL 字符串
- * @returns 查询参数对象；非法 URL 返回空对象
+ * 参数不会解码，重复键以后值覆盖前值，无等号的参数值为 `undefined`。
+ * 非法 URL 会输出错误并返回空对象。
  */
 export function getQueryMap(url: string): QueryMap {
     if (!isReferenceUrl(url)) {

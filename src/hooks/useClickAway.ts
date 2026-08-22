@@ -18,24 +18,22 @@ function getElement(target: ClickAwayTarget): EventTarget | null {
 }
 
 /**
- * 区域外点击 hook
+ * 监听目标区域外的指定事件。
  *
  * 支持两种用法：
- * 1. 无 target 参数：返回 ref，绑定到目标元素
- * 2. 有 target 参数：传入 ref / getter / element
+ * 1. 不传 `target`：使用返回的 ref 绑定目标元素。
+ * 2. 传入 `target`：直接使用 ref、getter 或元素。
  *
- * @param onClickAway 点击区域外时的回调
- * @param target 可选的目标元素（支持多种格式）
- * @param events 监听的事件类型，默认 ['click']
- * @returns target 未传入时可绑定到目标元素的 ref
+ * @param events - 监听的事件类型，默认 `['click']`
+ * @returns 未传入 `target` 时可绑定到目标元素的 ref
  *
  * @example
  * ```tsx
- * // 用法一：返回 ref
+ * // 用法一：返回 ref。
  * const ref = useClickAway(() => setOpen(false));
  * <div ref={ref}>...</div>
  *
- * // 用法二：传入 ref
+ * // 用法二：传入 ref。
  * const myRef = useRef(null);
  * useClickAway(() => setOpen(false), myRef);
  * ```

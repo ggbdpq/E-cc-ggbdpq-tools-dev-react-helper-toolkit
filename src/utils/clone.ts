@@ -1,3 +1,4 @@
+/** 安全判断对象自身是否拥有指定属性，不受同名实例方法影响 */
 export function hasOwnProp(object: object, key: PropertyKey): boolean {
     return Object.prototype.hasOwnProperty.call(object, key);
 }
@@ -38,12 +39,20 @@ function copyValue<T>(value: T, deep: boolean, seen: WeakMap<object, unknown>): 
     return result as T;
 }
 
-/** 浅拷贝值；deep 为 true 时递归复制并处理循环引用。 */
+/**
+ * 默认浅拷贝输入值。
+ *
+ * `deep` 为 `true` 时递归复制，并使用引用表处理循环引用。
+ */
 export function clone<T>(value: T, deep = false): T {
     return copyValue(value, deep, new WeakMap());
 }
 
-/** 深拷贝值，并保留 Date、RegExp、Map、Set 和对象原型。 */
+/**
+ * 深拷贝输入值。
+ *
+ * 保留 `Date`、`RegExp`、`Map`、`Set` 和对象原型，并处理循环引用。
+ */
 export function cloneDeep<T>(value: T): T {
     return copyValue(value, true, new WeakMap());
 }

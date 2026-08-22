@@ -2,14 +2,9 @@ import { useEffect } from "react";
 import { usePersistFn } from "./usePersistFn";
 
 /**
- * setTimeout hook
+ * 根据 `delay` 创建随 React 生命周期自动清理的单次定时器。
  *
- * delay 为 null / undefined 时不启动定时器。
- * 组件卸载时自动清理。StrictMode 安全。
- *
- * @param fn 回调函数
- * @param delay 延迟时间（ms），null/undefined 不启动
- * @returns 无返回值
+ * `delay` 为 `null` 或 `undefined` 时不启动，回调执行时读取最新的 `fn`。
  */
 export function useTimeout(fn: () => void, delay: number | null | undefined): void {
     const timerFn = usePersistFn(fn);

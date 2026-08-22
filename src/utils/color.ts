@@ -1,22 +1,37 @@
+/** 随机颜色的输出格式 */
 export type ColorType = "rgb" | "hex" | "hsl";
 
+/** `randomColor` 的生成配置 */
 export interface ColorOptions {
+    /** 颜色格式，默认 `rgb` */
     type?: ColorType;
+    /** 生成数量；`0` 返回单个颜色，大于 `0` 返回颜色数组，默认 `0` */
     num?: number;
 }
 
+/** HSL 线性渐变的生成配置 */
 export interface GradientOptions {
+    /** 基础色相，范围通常为 `0` 到 `360`；默认随机 */
     baseHue?: number;
+    /** 第二个色标相对基础色相的偏移量，默认 `30` */
     hueOffset?: number;
+    /** 饱和度百分比，默认 `70` */
     saturation?: number;
+    /** 亮度百分比，默认 `60` */
     lightness?: number;
+    /** 渐变角度，单位为度，默认 `135` */
     angle?: number;
+    /** 是否忽略 `baseHue` 并随机色相 */
     randomizeHue?: boolean;
+    /** 是否忽略 `saturation` 并在 `50` 到 `100` 间随机 */
     randomizeSaturation?: boolean;
+    /** 是否忽略 `lightness` 并在 `40` 到 `70` 间随机 */
     randomizeLightness?: boolean;
+    /** 是否忽略 `angle` 并随机渐变角度 */
     randomizeAngle?: boolean;
 }
 
+/** RGB 三个通道组成的元组 */
 export type RgbColor = [number, number, number];
 
 function createRandomColor(type: ColorType): string | undefined {
@@ -33,6 +48,11 @@ function createRandomColor(type: ColorType): string | undefined {
     }
 }
 
+/**
+ * 生成一个或多个随机颜色。
+ *
+ * `rgb` 使用浏览器 `crypto`，非浏览器环境返回 `undefined`；颜色文本不包含 `rgb(...)` 外壳。
+ */
 export function randomColor(options: ColorOptions = {}): string | string[] | undefined {
     const type = options.type ?? "rgb";
     const count = options.num ?? 0;
@@ -55,6 +75,7 @@ function generateHsl(hue: number, saturation: number, lightness: number): string
     return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
+/** 生成包含三个 HSL 色标的 CSS `linear-gradient` 字符串 */
 export function randomGradient(options: GradientOptions = {}): string {
     const {
         baseHue = getRandomInRange(0, 360),
@@ -78,22 +99,30 @@ export function randomGradient(options: GradientOptions = {}): string {
     )}, ${generateHsl((finalHue + 180) % 360, finalSaturation, finalLightness)})`;
 }
 
+/**
+ * 将六位十六进制颜色转换为 RGB 元组。
+ *
+ * @throws {TypeError} 输入无法拆分为三个十六进制通道时抛出
+ */
 export function hexToRgb(value: string): RgbColor {
     const matches = value.replace("#", "").match(/../g);
     if (!matches || matches.length < 3) throw new TypeError("Invalid hex color");
     return [Number.parseInt(matches[0], 16), Number.parseInt(matches[1], 16), Number.parseInt(matches[2], 16)];
 }
 
+/** 将三个颜色通道拼接为十六进制颜色；调用方负责保证通道位于 `0` 到 `255` */
 export function rgbToHex(red: number, green: number, blue: number): string {
     const components = [red, green, blue].map((value) => value.toString(16).padStart(2, "0"));
     return `#${components.join("")}`;
 }
 
+/** 按 `level` 比例降低十六进制颜色亮度；通常传入 `0` 到 `1` */
 export function darken(color: string, level: number): string {
     const [red, green, blue] = hexToRgb(color);
     return rgbToHex(Math.floor(red * (1 - level)), Math.floor(green * (1 - level)), Math.floor(blue * (1 - level)));
 }
 
+/** 按 `level` 比例将十六进制颜色向白色混合；通常传入 `0` 到 `1` */
 export function lighten(color: string, level: number): string {
     const [red, green, blue] = hexToRgb(color);
     return rgbToHex(

@@ -3,14 +3,13 @@ import { createAsyncLock } from "../core/async-lock";
 import { usePersistFn } from "./usePersistFn";
 
 /**
- * 异步锁 hook
+ * 返回引用稳定的异步加锁函数。
  *
  * 传入一个 async 函数，返回一个加锁版本。
  * 执行期间再次调用会被忽略，避免重复提交。
  * 无论成功或异常，执行结束后自动释放锁。
  *
- * @param fn 需要防重复执行的异步函数
- * @returns 引用稳定的加锁函数；锁定期间调用返回 undefined
+ * @returns 锁定期间再次调用时返回 `undefined`
  *
  * @example
  * ```tsx

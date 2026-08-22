@@ -1,9 +1,14 @@
 type EventMap = object;
 type EventHandler<T> = (payload: T) => void;
 type StoredEventHandler = EventHandler<never>;
-/** 未传事件映射时保持原有的宽松调用方式。 */
+/** 未传事件映射时保持原有的宽松调用方式 */
 type UntypedEventMap = Record<PropertyKey, unknown>;
 
+/**
+ * 以事件映射约束事件名称和载荷类型的发布订阅接口。
+ *
+ * @typeParam T - 事件名称到事件载荷的映射
+ */
 export interface EventEmitter<T extends EventMap> {
     /** 订阅事件 */
     on<K extends keyof T>(event: K, handler: EventHandler<T[K]>): void;
@@ -11,14 +16,14 @@ export interface EventEmitter<T extends EventMap> {
     off<K extends keyof T>(event: K, handler: EventHandler<T[K]>): void;
     /** 触发事件 */
     emit<K extends keyof T>(event: K, payload: T[K]): void;
-    /** 订阅一次后自动取消 */
+    /** 订阅一次，并在首次触发前自动取消 */
     once<K extends keyof T>(event: K, handler: EventHandler<T[K]>): void;
     /** 清除所有订阅 */
     clear(): void;
 }
 
 /**
- * 类型安全的事件发布/订阅器
+ * 创建类型安全的事件发布订阅器。
  *
  * @example
  * ```ts
@@ -38,7 +43,7 @@ export function createEventEmitter<T extends EventMap = UntypedEventMap>(): Even
             listeners.set(event, set);
         }
 
-        /** 同一事件键始终只存放与 T[K] 匹配的处理器。 */
+        // Map 在运行时会擦除泛型；同一事件键只由本接口写入，因此这里可以恢复 T[K] 的处理器类型。
         return set as Set<EventHandler<T[K]>>;
     }
 
@@ -60,7 +65,7 @@ export function createEventEmitter<T extends EventMap = UntypedEventMap>(): Even
         },
 
         emit<K extends keyof T>(event: K, payload: T[K]) {
-            /** 使用快照，保证当前 emit 不受回调内退订操作影响。 */
+            // 使用快照，保证回调在当前派发过程中增删订阅时不会改变本轮执行集合。
             const handlers = [...((listeners.get(event) as Set<EventHandler<T[K]>> | undefined) ?? [])];
             for (const handler of handlers) {
                 handler(payload);

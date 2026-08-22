@@ -1,19 +1,28 @@
+/** 返回非空数字数组的最大值；无效或空数组返回 `0` */
 export function max(list: number[]): number {
     return Array.isArray(list) && list.length > 0 ? Math.max(...list) : 0;
 }
 
+/** 返回非空数字数组的最小值；无效或空数组返回 `0` */
 export function min(list: number[]): number {
     return Array.isArray(list) && list.length > 0 ? Math.min(...list) : 0;
 }
 
+/** 返回数字数组总和；无效或空数组返回 `0` */
 export function sum(list: number[]): number {
     return Array.isArray(list) && list.length > 0 ? list.reduce((total, value) => total + value) : 0;
 }
 
+/** 返回数字数组平均值；无效或空数组返回 `0` */
 export function average(list: number[]): number {
     return Array.isArray(list) && list.length > 0 ? sum(list) / list.length : 0;
 }
 
+/**
+ * 将非负整数或小数转换为中文数字文本。
+ *
+ * 保留参考实现的万、亿分组与小数逐位转换规则。
+ */
 export function numberToChinese(value: number | string): string {
     if (!value && typeof value === "undefined") return "";
     if (Number(value) === 0) return "零";
@@ -56,6 +65,7 @@ export function numberToChinese(value: number | string): string {
     return result;
 }
 
+/** 判断数值是否超过 JavaScript 最大安全整数；超过时输出控制台警告 */
 export function exceedMathMax(value: number): boolean {
     const exceeded = value > Number.MAX_SAFE_INTEGER;
     if (exceeded) console.warn("The calculation length has exceeded the JS maximum security integer");
@@ -72,6 +82,7 @@ function roundResult(value: number, decimal?: number): number {
     return decimal ? Number(value.toFixed(decimal)) : value;
 }
 
+/** 使用整数缩放降低常见十进制加法误差，可按 `decimal` 保留小数位 */
 export function addition(first: number, second: number, decimal?: number): number {
     const scale = getIntegerScale(first, second);
     const scaled = first * scale + second * scale;
@@ -79,6 +90,7 @@ export function addition(first: number, second: number, decimal?: number): numbe
     return roundResult(scaled / scale, decimal);
 }
 
+/** 使用整数缩放降低常见十进制减法误差，可按 `decimal` 保留小数位 */
 export function subtraction(first: number, second: number, decimal?: number): number {
     const scale = getIntegerScale(first, second);
     const scaled = first * scale - second * scale;
@@ -86,12 +98,14 @@ export function subtraction(first: number, second: number, decimal?: number): nu
     return roundResult(scaled / scale, decimal);
 }
 
+/** 计算乘积并检查安全整数上限，可按 `decimal` 保留小数位 */
 export function multiplication(first: number, second: number, decimal?: number): number {
     const result = first * second;
     exceedMathMax(result);
     return roundResult(result, decimal);
 }
 
+/** 计算商并检查安全整数上限；除数为零时遵循 JavaScript 数值语义 */
 export function divisionOperation(first: number, second: number, decimal?: number): number {
     const scale = getIntegerScale(first, second);
     const result = (first * scale) / (second * scale);
@@ -99,6 +113,7 @@ export function divisionOperation(first: number, second: number, decimal?: numbe
     return roundResult(result, decimal);
 }
 
+/** 将非负字节数格式化为以 `1024` 为进位的单位字符串，默认保留两位小数 */
 export function formatBytes(byte: number, digits?: number): string {
     if (byte === 0) return "0 Bytes";
     const base = 1024;

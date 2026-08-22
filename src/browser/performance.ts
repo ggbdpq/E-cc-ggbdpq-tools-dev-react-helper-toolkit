@@ -1,10 +1,16 @@
 import { delay } from "../utils/debounce";
 
+/** 基于旧版 Navigation Timing 时间点计算的页面性能指标，单位为秒 */
 export interface PerformanceMetrics {
+    /** DNS 查询耗时 */
     dns: number;
+    /** TCP 连接耗时 */
     tcp: number;
+    /** 从响应开始到响应结束的耗时 */
     request: number;
+    /** 从 DOM 可交互到 DOM 完成的耗时 */
     dom: number;
+    /** 从导航开始到 DOM 完成的总耗时 */
     whiteScreen: number;
 }
 
@@ -20,6 +26,11 @@ interface LegacyPerformanceTiming {
     navigationStart: number;
 }
 
+/**
+ * 等待 `500ms` 后读取旧版 `performance.timing` 并计算页面性能指标。
+ *
+ * @throws {Error} 非浏览器环境调用时抛出；运行环境缺少旧版 `timing` 数据时也可能失败
+ */
 export async function getPerformance(): Promise<PerformanceMetrics> {
     if (typeof document === "undefined") throw new Error("Browser environment required");
     const timing = (window.performance as Performance & { timing: LegacyPerformanceTiming }).timing;

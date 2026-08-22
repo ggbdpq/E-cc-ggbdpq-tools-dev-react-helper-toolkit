@@ -1,5 +1,6 @@
 type AnyFunction = (...args: never[]) => unknown;
 
+/** 保留原函数参数，并提供取消能力的节流函数 */
 export interface ThrottledFn<T extends AnyFunction> {
     /** 执行节流后的函数 */
     (...args: Parameters<T>): void;
@@ -7,21 +8,20 @@ export interface ThrottledFn<T extends AnyFunction> {
     cancel(): void;
 }
 
-/** 节流函数的前沿与后沿触发配置。 */
+/** 节流函数的前沿与后沿触发配置 */
 export interface ThrottleOptions {
-    /** 是否在前沿触发，默认 true */
+    /** 是否在前沿触发，默认 `true` */
     leading?: boolean;
-    /** 是否在后沿触发，默认 true */
+    /** 是否在后沿触发，默认 `true` */
     trailing?: boolean;
 }
 
 /**
- * 创建节流函数 —— 零外部依赖
+ * 创建节流函数。
  *
- * @param fn 原始函数
- * @param wait 间隔时间（ms），默认 1000
- * @param options 前沿与后沿触发配置；两者都为 false 时不执行
- * @returns 带 cancel 控制方法的节流函数
+ * @param wait - 调用间隔，单位毫秒，默认 `1000`
+ * @param options - 前沿与后沿触发配置；两者都为 `false` 时不执行
+ * @returns 带 `cancel` 控制方法的节流函数
  */
 export function createThrottledFn<T extends AnyFunction>(
     fn: T,
@@ -69,7 +69,7 @@ export function createThrottledFn<T extends AnyFunction>(
         lastArgs = args;
 
         if (remaining <= 0 || remaining > wait) {
-            // 超过等待时间
+            // 系统时间回拨会使 remaining 大于 wait，此时也应开启新的节流窗口。
             if (timerId !== null) {
                 clearTimeout(timerId);
                 timerId = null;

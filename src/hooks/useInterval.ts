@@ -1,22 +1,16 @@
 import { useEffect } from "react";
 import { useLatest } from "./useLatest";
 
-/** React interval Hook 配置。 */
+/** React interval Hook 配置 */
 export interface UseIntervalOptions {
-    /** 是否在启动时立即执行一次，默认 false */
+    /** 是否在启动时立即执行一次，默认 `false` */
     immediate?: boolean;
 }
 
 /**
- * setInterval hook
+ * 根据 `delay` 创建随 React 生命周期自动清理的重复定时器。
  *
- * delay 为 null / undefined 时不启动定时器。
- * 组件卸载时自动清理。StrictMode 安全。
- *
- * @param fn 回调函数
- * @param delay 间隔时间（ms），null/undefined 不启动
- * @param options immediate 选项
- * @returns 无返回值
+ * `delay` 为 `null` 或 `undefined` 时不启动；`immediate` 为 `true` 时会先同步执行一次。
  */
 export function useInterval(
     fn: () => void,

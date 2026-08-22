@@ -1,33 +1,48 @@
+/** 字段选择规则：键数组、键集合，或值为 `true`/`1` 的对象映射 */
 export type KeyRule = readonly PropertyKey[] | ReadonlySet<PropertyKey> | Record<string, boolean | number>;
+/** 根据字段名和值决定是否命中规则的函数 */
 export type KeyPredicate = (key: PropertyKey, value: unknown) => boolean;
 
+/** `cleanObject` 的递归清理配置 */
 export interface CleanOptions {
+    /** 只处理命中规则的字段 */
     includeKeys?: KeyRule | KeyPredicate;
+    /** 跳过命中规则的字段；优先级高于 `includeKeys` */
     excludeKeys?: KeyRule | KeyPredicate;
+    /** 是否把仅包含空白的字符串视为空值 */
     excludeWhitespaceStrings?: boolean;
+    /** 是否移除清理后没有字段的对象 */
     excludeEmptyObjects?: boolean;
+    /** 是否移除清理后没有元素的数组 */
     excludeEmptyArrays?: boolean;
+    /** 返回 `true` 时移除当前值；回调可读取字段名和父对象 */
     customFilter?: (value: unknown, key?: PropertyKey, parent?: unknown) => boolean;
+    /** 最大递归深度，根值深度从 `1` 开始，默认不限 */
     maxDepth?: number;
+    /** 是否允许根对象清理后为空，默认 `false` */
     allowRootIfEmpty?: boolean;
+    /** 按父字段名配置需要从其对象值中剥离的字段 */
     stripKeysInObjects?: Record<string, PropertyKey[] | KeyPredicate | Array<PropertyKey | KeyPredicate>>;
 }
 
+/** 将对象和数组递归映射为清理后的可选结构 */
 export type DeepClean<T> = T extends readonly (infer TItem)[]
     ? Array<DeepClean<TItem>>
     : T extends object
       ? { [TKey in keyof T]?: DeepClean<T[TKey]> }
       : T;
 
+/** 对象自身可枚举字符串字段组成的强类型键值元组 */
 export type ObjectEntry<T extends object> = {
     [TKey in Extract<keyof T, string>]-?: [TKey, T[TKey]];
 }[Extract<keyof T, string>];
 
-/** 返回对象自身可枚举字符串键组成的强类型键值元组。 */
+/** 返回对象自身可枚举字符串键组成的强类型键值元组 */
 export function entries<T extends object>(object: T): Array<ObjectEntry<T>> {
     return Object.keys(object).map((key) => [key, object[key as keyof T]]) as Array<ObjectEntry<T>>;
 }
 
+/** 浅拷贝对象并删除指定字段，不修改输入对象 */
 export function delObjectProperty<T extends object, TKey extends keyof T>(object: T, props: TKey | TKey[]): Omit<T, TKey> {
     const result = { ...object };
     const keys = Array.isArray(props) ? props : [props];
@@ -35,6 +50,7 @@ export function delObjectProperty<T extends object, TKey extends keyof T>(object
     return result;
 }
 
+/** 将支持的字段规则转换为新 `Set`；无法识别时返回 `undefined` */
 export function toSet(value: unknown): Set<PropertyKey> | undefined {
     if (!value) return undefined;
     if (value instanceof Set) return new Set(value as Set<PropertyKey>);
@@ -46,6 +62,7 @@ export function toSet(value: unknown): Set<PropertyKey> | undefined {
     return undefined;
 }
 
+/** 判断字段是否通过 `includeKeys` 和 `excludeKeys` 规则 */
 export function shouldCleanKey(key: PropertyKey, value: unknown, options: CleanOptions): boolean {
     if (options.includeKeys !== undefined) {
         const included =
@@ -64,6 +81,7 @@ export function shouldCleanKey(key: PropertyKey, value: unknown, options: CleanO
     return true;
 }
 
+/** 按配置判断值是否应被清理；`null`、`undefined` 和空字符串始终无效 */
 export function isInvalidValue(value: unknown, options: CleanOptions): boolean {
     if (value === null || value === undefined || value === "") return true;
     if (options.excludeWhitespaceStrings && typeof value === "string" && value.trim() === "") return true;
@@ -72,7 +90,11 @@ export function isInvalidValue(value: unknown, options: CleanOptions): boolean {
     return options.customFilter?.(value) ?? false;
 }
 
-/** 递归移除空值和被规则排除的字段，不修改输入对象。 */
+/**
+ * 递归移除空值和被规则排除的字段，不修改输入对象。
+ *
+ * 根值清理后为空且未启用 `allowRootIfEmpty` 时返回 `undefined`。
+ */
 export function cleanObject<T>(object: T, options: CleanOptions = {}): DeepClean<T> | undefined {
     const maxDepth = options.maxDepth ?? Infinity;
     const stripRules = options.stripKeysInObjects ?? {};

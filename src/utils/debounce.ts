@@ -1,12 +1,14 @@
 type AnyFunction = (...args: never[]) => unknown;
 
+/** 保留原函数参数、但不暴露返回值的延迟调用函数 */
 export type DelayedFunction<TFunction extends AnyFunction> = (...args: Parameters<TFunction>) => void;
 
+/** 返回在指定毫秒数后完成的 Promise，默认等待 `20ms` */
 export function delay(timeout = 20): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, timeout));
 }
 
-/** 保持参考实现的 trailing 防抖和 immediate 首次执行语义。 */
+/** 保持参考实现的 trailing 防抖和 immediate 首次执行语义 */
 export function debounce<TFunction extends AnyFunction>(
     fn: TFunction,
     timeout = 200,
@@ -29,7 +31,7 @@ export function debounce<TFunction extends AnyFunction>(
     };
 }
 
-/** 保持参考实现：窗口内后续调用被忽略，并使用第一次调用的参数。 */
+/** 保持参考实现：窗口内后续调用被忽略，并使用第一次调用的参数 */
 export function throttle<TFunction extends AnyFunction>(
     fn: TFunction,
     timeout = 1000,

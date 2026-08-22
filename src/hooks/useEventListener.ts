@@ -3,15 +3,19 @@ import { useLatest } from "./useLatest";
 
 type Target = EventTarget | (() => EventTarget | null | undefined) | React.RefObject<EventTarget> | null | undefined;
 
-/** 原生事件监听选项。 */
+/** 原生事件监听选项 */
 export interface UseEventListenerOptions {
-    /** 事件目标，默认 window。支持 EventTarget / getter / RefObject */
+    /**
+     * 事件目标，默认 `window`。
+     *
+     * 支持 `EventTarget`、getter 和 `RefObject`。
+     */
     target?: Target;
     /** 是否在捕获阶段触发 */
     capture?: boolean;
     /** 是否只触发一次 */
     once?: boolean;
-    /** 是否为 passive 事件 */
+    /** 是否为 `passive` 事件 */
     passive?: boolean;
 }
 
@@ -30,14 +34,9 @@ function getTargetElement(target: Target, defaultElement?: EventTarget): EventTa
 }
 
 /**
- * 事件监听 hook
+ * 注册随 React 生命周期自动清理的原生事件监听。
  *
- * 回调更新不会触发重新订阅；event、target 或监听选项变化时会正确清理并重建。
- *
- * @param event 事件名称
- * @param handler 事件回调；触发时读取最新函数
- * @param options 事件目标和原生 addEventListener 选项
- * @returns 无返回值
+ * 回调更新不会触发重新订阅；`event`、`target` 或监听选项变化时会清理并重建监听。
  *
  * @example
  * ```tsx

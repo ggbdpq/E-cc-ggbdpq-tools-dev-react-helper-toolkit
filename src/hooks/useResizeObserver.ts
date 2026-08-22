@@ -4,16 +4,24 @@ import type { DebouncedFn } from "../core/debounce";
 import { useLatest } from "./useLatest";
 import { usePersistFn } from "./usePersistFn";
 
+/** 被观察元素的定位方式；字符串会匹配全部符合条件的元素 */
 export type ResizeTarget = Element | string | React.RefObject<Element | null>;
 
+/** `useResizeObserver` 的观察配置 */
 export interface UseResizeObserverOptions {
+    /** 回调防抖时间，单位毫秒，默认 `40` */
     time?: number;
+    /** 传给 `ResizeObserver.observe` 的盒模型，默认 `content-box` */
     box?: ResizeObserverBoxOptions;
+    /** 是否在开始观察时用当前尺寸主动回调一次，默认 `true` */
     immediate?: boolean;
 }
 
+/** `useResizeObserver` 返回的生命周期控制方法 */
 export interface UseResizeObserverResult {
+    /** 取消防抖任务并断开当前观察器 */
     stop(): void;
+    /** 重新解析目标并建立观察器；没有可用目标时保持停止 */
     restart(): void;
 }
 
@@ -23,7 +31,11 @@ function resolveTarget(target: ResizeTarget): Element[] {
     return [target];
 }
 
-/** 观察一个或多个元素尺寸，支持防抖、停止和重新启动。 */
+/**
+ * 挂载后观察一个或多个元素尺寸，支持防抖、停止和重新启动。
+ *
+ * 浏览器不支持 `ResizeObserver` 或没有匹配元素时保持停止；卸载时自动断开观察器。
+ */
 export function useResizeObserver(
     target: ResizeTarget | readonly ResizeTarget[],
     callback: ResizeObserverCallback,
@@ -53,11 +65,12 @@ export function useResizeObserver(
         );
         debouncedRef.current = debounced;
         const observer = new ResizeObserver((entries) => debounced(entries, observer));
-        observerRef.current = observer;
-        for (const element of elements) {
-            observer.observe(element, { box });
-            if (immediate) {
-                const rect = element.getBoundingClientRect();
+            observerRef.current = observer;
+            for (const element of elements) {
+                observer.observe(element, { box });
+                if (immediate) {
+                    // ResizeObserver 没有同步读取 API，因此用当前布局尺寸构造首次通知。
+                    const rect = element.getBoundingClientRect();
                 const size = [{ inlineSize: rect.width, blockSize: rect.height }];
                 callbackRef.current(
                     [

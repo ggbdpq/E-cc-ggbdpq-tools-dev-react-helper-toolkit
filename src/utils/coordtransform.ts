@@ -3,6 +3,7 @@ const PI = 3.1415926535897932384626;
 const EARTH_RADIUS = 6378245;
 const ECCENTRICITY = 0.00669342162296594323;
 
+/** 按 `[经度, 纬度]` 排列的坐标元组 */
 export type Coordinate = [number, number];
 
 function transformLatitude(longitude: number, latitude: number): number {
@@ -33,6 +34,7 @@ function transformLongitude(longitude: number, latitude: number): number {
     return result;
 }
 
+/** 将百度 BD-09 坐标转换为国测局 GCJ-02 坐标 */
 export function bd09togcj02(longitude: number, latitude: number): Coordinate {
     const x = longitude - 0.0065;
     const y = latitude - 0.006;
@@ -41,6 +43,7 @@ export function bd09togcj02(longitude: number, latitude: number): Coordinate {
     return [radius * Math.cos(theta), radius * Math.sin(theta)];
 }
 
+/** 将国测局 GCJ-02 坐标转换为百度 BD-09 坐标 */
 export function gcj02tobd09(longitude: number, latitude: number): Coordinate {
     const radius = Math.sqrt(longitude * longitude + latitude * latitude) + 0.00002 * Math.sin(latitude * X_PI);
     const theta = Math.atan2(latitude, longitude) + 0.000003 * Math.cos(longitude * X_PI);
@@ -60,18 +63,21 @@ function getGcjOffset(longitude: number, latitude: number): Coordinate {
     return [longitudeOffset, latitudeOffset];
 }
 
+/** 将 WGS-84 坐标转换为 GCJ-02；境外坐标原样返回 */
 export function wgs84togcj02(longitude: number, latitude: number): Coordinate {
     if (out_of_china(longitude, latitude)) return [longitude, latitude];
     const [longitudeOffset, latitudeOffset] = getGcjOffset(longitude, latitude);
     return [longitude + longitudeOffset, latitude + latitudeOffset];
 }
 
+/** 使用偏移量近似地将 GCJ-02 坐标转换为 WGS-84；境外坐标原样返回 */
 export function gcj02towgs84(longitude: number, latitude: number): Coordinate {
     if (out_of_china(longitude, latitude)) return [longitude, latitude];
     const [longitudeOffset, latitudeOffset] = getGcjOffset(longitude, latitude);
     return [longitude - longitudeOffset, latitude - latitudeOffset];
 }
 
+/** 判断坐标是否位于实现使用的中国大陆经纬度矩形范围之外 */
 export function out_of_china(longitude: number, latitude: number): boolean {
     return !(longitude > 73.66 && longitude < 135.05 && latitude > 3.86 && latitude < 53.55);
 }

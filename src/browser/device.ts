@@ -1,8 +1,12 @@
+/** 基于 user agent 解析出的浏览器名称和主版本号 */
 export interface BrowserInfo {
+    /** 小写浏览器名称；无法识别或非浏览器环境时为空字符串 */
     browser: string;
+    /** 主版本号；无法识别或非浏览器环境时为空字符串 */
     version: string;
 }
 
+/** 使用 user agent 关键字粗略判断是否为移动设备；非浏览器环境返回 `false` */
 export function deviceDetection(): boolean {
     if (typeof document === "undefined") return false;
     const agent = navigator.userAgent.toLowerCase();
@@ -11,6 +15,7 @@ export function deviceDetection(): boolean {
     );
 }
 
+/** 使用兼容旧浏览器的 user agent 规则解析浏览器名称和主版本号；非浏览器环境返回空值结构 */
 export function getBrowserInfo(): BrowserInfo {
     if (typeof document === "undefined") return { browser: "", version: "" };
     const userAgent = navigator.userAgent;

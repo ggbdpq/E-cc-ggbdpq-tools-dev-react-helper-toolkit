@@ -2,27 +2,38 @@ const YEAR_TOKEN = /(Y+)/;
 const DATE_TOKENS = ["M+", "D+", "H+", "m+", "s+"] as const;
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"] as const;
 
+/** 当前日期的预设格式：`1` 中文、`2` 横线、`3` 斜杠 */
 export type CurrentDateFormat = 1 | 2 | 3;
 
-/** 当前日期的年月日、时分秒和星期。 */
+/** 当前日期的年月日、时分秒和星期 */
 export interface CurrentDateResult {
+    /** 已格式化的年月日 */
     ymd: string;
+    /** 已格式化的时分秒 */
     hms: string;
+    /** 包含配置前缀的星期文本 */
     week: string;
 }
 
-/** 当前日期格式配置。 */
+/** 当前日期格式配置 */
 export interface CurrentDateOptions {
-    /** 1：中文；2：横线；3：斜杠。 */
+    /** `1`：中文；`2`：横线；`3`：斜杠 */
     type?: CurrentDateFormat;
-    /** 星期文本前缀，默认 `星期`。 */
+    /** 星期文本前缀，默认 `星期` */
     prefix?: string;
 }
 
-/** 时、分、秒结构；小于 10 且启用补零时对应字段为字符串。 */
+/**
+ * 时、分、秒结构。
+ *
+ * 小于 `10` 且启用补零时，对应字段为字符串。
+ */
 export interface TimeParts {
+    /** 小时；启用补零且不足两位时为字符串 */
     h: number | string;
+    /** 分钟；启用补零且不足两位时为字符串 */
     m: number | string;
+    /** 秒；启用补零且不足两位时为字符串 */
     s: number | string;
 }
 
@@ -41,12 +52,7 @@ function getTokenValue(date: Date, token: (typeof DATE_TOKENS)[number]): number 
     }
 }
 
-/**
- * 使用参考实现的 Y、M、D、H、m、s 令牌格式化当前日期。
- *
- * @param format 日期格式模板
- * @returns 格式化后的当前日期
- */
+/** 使用 `Y`、`M`、`D`、`H`、`m`、`s` 令牌格式化当前日期 */
 export function dateFormat(format: string): string {
     const date = new Date();
     let result = format;
@@ -71,8 +77,7 @@ export function dateFormat(format: string): string {
 /**
  * 返回当前星期。
  *
- * @param prefix 文本前缀，默认 `星期`
- * @returns 星期文本
+ * @param prefix - 文本前缀，默认 `星期`
  */
 export function getCurrentWeek(prefix = "星期"): string {
     return `${prefix}${WEEKDAYS[new Date().getDay()]}`;
@@ -81,8 +86,7 @@ export function getCurrentWeek(prefix = "星期"): string {
 /**
  * 返回指定日期所在月份的总天数。
  *
- * @param time 日期实例或可由 Date 解析的字符串
- * @returns 月份天数；无效日期返回 NaN
+ * 无效日期返回 `NaN`。
  */
 export function monthDays(time: Date | string): number {
     const date = new Date(time);
@@ -92,8 +96,7 @@ export function monthDays(time: Date | string): number {
 /**
  * 返回从当前年份到起始年份的倒序年份数组。
  *
- * @param start 起始年份
- * @returns 倒序年份数组；起始年份晚于当前年份时返回空数组
+ * 起始年份晚于当前年份时返回空数组。
  */
 export function createYear(start: number): number[] {
     const currentYear = new Date().getFullYear();
@@ -106,12 +109,7 @@ export function createYear(start: number): number[] {
     return years.reverse();
 }
 
-/**
- * 返回当前日期、时间和星期。
- *
- * @param options 日期格式与星期前缀
- * @returns 当前日期结构
- */
+/** 按配置返回当前日期、时间和星期 */
 export function getCurrentDate(options: CurrentDateOptions = {}): CurrentDateResult {
     const week = getCurrentWeek(options.prefix ?? "星期");
 
@@ -129,9 +127,8 @@ export function getCurrentDate(options: CurrentDateOptions = {}): CurrentDateRes
 /**
  * 将秒数转换为时、分、秒。
  *
- * @param seconds 秒数，小数部分向下取整
- * @param pad 是否为小于 10 的值补零，默认 true
- * @returns 时、分、秒结构
+ * @param seconds - 秒数，小数部分向下取整
+ * @param pad - 是否为小于 `10` 的值补零，默认 `true`
  */
 export function getTime(seconds: number, pad = true): TimeParts {
     function normalize(value: number): number | string {

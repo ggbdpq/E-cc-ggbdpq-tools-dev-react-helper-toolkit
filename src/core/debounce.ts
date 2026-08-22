@@ -1,5 +1,6 @@
 type AnyFunction = (...args: never[]) => unknown;
 
+/** 保留原函数参数，并提供取消和立即刷新能力的防抖函数 */
 export interface DebouncedFn<T extends AnyFunction> {
     /** 执行防抖后的函数 */
     (...args: Parameters<T>): void;
@@ -9,21 +10,19 @@ export interface DebouncedFn<T extends AnyFunction> {
     flush(): void;
 }
 
-/** 防抖函数的前沿与后沿触发配置。 */
+/** 防抖函数的前沿与后沿触发配置 */
 export interface DebounceOptions {
-    /** 是否在前沿触发，默认 false */
+    /** 是否在前沿触发，默认 `false` */
     leading?: boolean;
-    /** 是否在后沿触发，默认 true */
+    /** 是否在后沿触发，默认 `true` */
     trailing?: boolean;
 }
 
 /**
- * 创建防抖函数 —— 零外部依赖
+ * 创建防抖函数。
  *
- * @param fn 原始函数
- * @param wait 等待时间（ms），默认 1000
- * @param options 前沿与后沿触发配置
- * @returns 带 cancel 和 flush 控制方法的防抖函数
+ * @param wait - 静默等待时间，单位毫秒，默认 `1000`
+ * @returns 带 `cancel` 和 `flush` 控制方法的防抖函数
  */
 export function createDebouncedFn<T extends AnyFunction>(
     fn: T,
@@ -81,7 +80,7 @@ export function createDebouncedFn<T extends AnyFunction>(
 
         if (isFirstCall && leading) {
             invokeFunc(args);
-            // 即使 leading 触发了，仍需启动 timer（用于重置状态 & trailing）
+            // 前沿调用后仍需保留静默期计时器，用于重置调用窗口并决定是否执行后沿任务。
             cancelTimer();
             startTimer(trailingEdge, wait);
             return;

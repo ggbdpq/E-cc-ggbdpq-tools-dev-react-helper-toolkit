@@ -2,8 +2,10 @@ function isPlainRecord(value: unknown): value is Record<string, unknown> {
     return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
+/** 可注入到集合比较中的相等判断函数 */
 export type EqualityFunction = (first: unknown, second: unknown, seen?: WeakMap<object, object>) => boolean;
 
+/** 比较 Map 的键集合及对应值；键使用 Map 自身的严格匹配语义 */
 export function mapsEqual(
     first: Map<unknown, unknown>,
     second: Map<unknown, unknown>,
@@ -16,6 +18,7 @@ export function mapsEqual(
     return true;
 }
 
+/** 比较 Set 的大小和成员；对象成员按引用比较 */
 export function setsEqual(first: Set<unknown>, second: Set<unknown>): boolean {
     if (first.size !== second.size) return false;
     for (const value of first) if (!second.has(value)) return false;
@@ -30,7 +33,11 @@ function arraysEqual(first: unknown[], second: unknown[], seen: WeakMap<object, 
     return true;
 }
 
-/** 深度比较常见结构，并使用 WeakMap 处理循环引用。 */
+/**
+ * 深度比较常见内置结构和普通对象。
+ *
+ * 使用 `WeakMap` 记录已经比较的对象引用，避免循环引用导致无限递归。
+ */
 export function deepEqual(first: unknown, second: unknown, seen = new WeakMap<object, object>()): boolean {
     if (first === second) return true;
     if (first instanceof Date && second instanceof Date) return first.getTime() === second.getTime();
