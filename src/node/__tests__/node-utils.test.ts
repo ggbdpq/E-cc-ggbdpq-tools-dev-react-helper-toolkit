@@ -12,7 +12,7 @@ describe("node utils", () => {
     });
 
     it("递归统计目录文件大小", async () => {
-        const root = await mkdtemp(join(tmpdir(), "react-hooks-me-"));
+        const root = await mkdtemp(join(tmpdir(), "react-helper-toolkit-"));
         await mkdir(join(root, "nested"));
         await writeFile(join(root, "a.txt"), "1234");
         await writeFile(join(root, "nested", "b.txt"), "12");

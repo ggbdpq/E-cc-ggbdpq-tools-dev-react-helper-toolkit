@@ -1,26 +1,26 @@
-# react-hooks-me
+# react-helper-toolkit
 
 > React-only 常用 hooks 库 —— UI 无关，零外部 UI 框架依赖
 
 高质量、零运行时依赖的 React Hooks 工具集。Core 层为纯函数，可在 Node/Worker 等任意 JS 环境运行；Hooks 层仅依赖 React，对 Core 进行薄封装。
 
-## 定位与复刻边界
+## 定位与设计原则
 
-本项目复用了 `pure-admin-utils` 的工程原则：零运行时依赖、TypeScript 强类型、Tree-shaking、统一导出和自动化验证；实现层则按 React 生命周期重新设计。
+零运行时依赖、TypeScript 强类型、Tree-shaking、统一导出和自动化验证；实现层按 React 生命周期原生设计。
 
-- 保留 React 项目现有的公开导出名称和调用方式
-- 不直接搬运 Vue 的 `ref`、`watch`、`onBeforeUnmount` 等运行时模型
+- 公开导出名称和调用方式保持稳定、可预测，便于渐进接入
+- 原生 React 状态与副作用模型，不引入额外的响应式抽象层
 - UI 相关能力只保留适配器接口，不绑定 Ant Design、shadcn/ui 等组件库
 - React 16.8+ 使用 `ref + effect cleanup` 保持最新回调和 StrictMode 安全
 
-因此，这里追求的是 React 语义下的等价能力与工程质量，不是把 Vue API 逐项改名后照搬。
+追求的是 React 语义下的原生实现与工程质量。
 
 ## 安装
 
 ```bash
-pnpm add react-hooks-me
+pnpm add react-helper-toolkit
 # 或
-npm install react-hooks-me
+npm install react-helper-toolkit
 ```
 
 **前置依赖**：`react >= 16.8`
@@ -28,7 +28,7 @@ npm install react-hooks-me
 ## 快速开始
 
 ```tsx
-import { useDebounceFn, useEventListener, useTimeout } from "react-hooks-me";
+import { useDebounceFn, useEventListener, useTimeout } from "react-helper-toolkit";
 
 function SearchBox() {
   const debouncedSearch = useDebounceFn((keyword: string) => fetchResults(keyword), {
@@ -120,13 +120,13 @@ interface UseThrottleFnOptions {
 框架无关的工具通过静态子路径导入，不进入 React 主入口：
 
 ```ts
-import { convertPath } from "react-hooks-me/utils/convertPath";
-import { getCurrentDate } from "react-hooks-me/utils/date";
-import { nameCamelize } from "react-hooks-me/utils/nameTransform";
-import { hideTextAtIndex } from "react-hooks-me/utils/substring";
-import { removeAllSpace } from "react-hooks-me/utils/space";
-import { getQueryMap } from "react-hooks-me/utils/url";
-import { buildGUID } from "react-hooks-me/utils/uuid";
+import { convertPath } from "react-helper-toolkit/utils/convertPath";
+import { getCurrentDate } from "react-helper-toolkit/utils/date";
+import { nameCamelize } from "react-helper-toolkit/utils/nameTransform";
+import { hideTextAtIndex } from "react-helper-toolkit/utils/substring";
+import { removeAllSpace } from "react-helper-toolkit/utils/space";
+import { getQueryMap } from "react-helper-toolkit/utils/url";
+import { buildGUID } from "react-helper-toolkit/utils/uuid";
 ```
 
 当前已复刻：
@@ -145,15 +145,15 @@ import { buildGUID } from "react-hooks-me/utils/uuid";
 浏览器工具使用独立子路径：
 
 ```ts
-import { downloadByData } from "react-hooks-me/browser/download";
-import { storageLocal } from "react-hooks-me/browser/storage";
+import { downloadByData } from "react-helper-toolkit/browser/download";
+import { storageLocal } from "react-helper-toolkit/browser/storage";
 ```
 
 Node 工具与 ECharts 集成同样隔离：
 
 ```ts
-import { getPackageSize } from "react-hooks-me/node/packageSize";
-import { useECharts } from "react-hooks-me/echarts";
+import { getPackageSize } from "react-helper-toolkit/node/packageSize";
+import { useECharts } from "react-helper-toolkit/echarts";
 ```
 
 ## Vue Hook 迁移边界

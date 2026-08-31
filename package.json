@@ -1,5 +1,5 @@
 {
-  "name": "react-hooks-me",
+  "name": "react-helper-toolkit",
   "version": "0.1.0",
   "description": "React Hooks 与 TypeScript 常用工具集，UI 无关，零运行时依赖",
   "keywords": [
